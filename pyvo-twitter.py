@@ -1,9 +1,15 @@
 import sys
 import os.path
+from os.path import join
+from datetime import datetime
 
 import json
 import tweepy
 import click
+import git
+from git import Repo
+from pyvodb.load import get_db, load_from_directory
+from pyvodb.tables import Event, City, Venue
 
 import config
 
@@ -29,6 +35,19 @@ def get_api():
         sys.exit(1)
         
     return api
+
+def update_data():
+    if os.path.exists(config.data_dir):
+        repo = Repo(config.data_dir)
+        repo.remotes.origin.pull()
+    else:
+        repo = Repo.clone_from(config.data_repo_url, config.data_dir)
+
+def get_events(date):
+    db = get_db(config.data_dir)
+    query = db.query(Event).filter(Event.year == date.year, Event.month == date.month, Event.day == date.day)
+    return query.all()
+    
 
 @click.group()
 def main():
@@ -56,9 +75,18 @@ def authorize():
     print("Authorization successful.")
 
 @main.command()
-def tweet():
-    api = get_api()
-    api.update_status("test")
+@click.option('--date', required=False)
+def tweet(date):
+    if date:
+        date = datetime.strptime(date, '%Y-%m-%d')
+    else:
+        date = datetime.today()
+    update_data()
+    events = get_events(date)
+    for event in events:
+        print("Event {} {}".format(event.date, event.city.name))
+    #api = get_api()    
+    #api.update_status("test")
 
 if __name__ == '__main__':
     main()

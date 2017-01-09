@@ -1,0 +1,5 @@
+consumer_key = ""
+consumer_secret = ""
+
+data_repo_url = "https://github.com/pyvec/pyvo-data"
+data_dir = "pyvo-data"
