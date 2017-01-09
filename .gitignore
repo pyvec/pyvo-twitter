@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+*~
+authorization_key.json
+config.py
+
+env/
+
+pyvo-data/
+
+access_token.json
