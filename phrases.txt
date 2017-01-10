@@ -1,0 +1,1 @@
+🐍🍺 Dnes se koná {event.name} na téma {event.topic}.  Přijďte!

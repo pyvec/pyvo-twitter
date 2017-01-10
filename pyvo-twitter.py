@@ -2,6 +2,7 @@ import sys
 import os.path
 from os.path import join
 from datetime import datetime
+import random
 
 import json
 import tweepy
@@ -14,6 +15,8 @@ from pyvodb.tables import Event, City, Venue
 import config
 
 access_token = None
+
+PHRASES = open("phrases.txt").read().strip().split('\n')
 
 def get_api():
     if os.path.isfile("access_token.json"):
@@ -56,7 +59,7 @@ def main():
 @main.command()
 def authorize():
     """
-        Interactively authorize the pyvo-twitter application on Twitter.
+        Interactively authorize on Twitter.
     """
     auth = tweepy.OAuthHandler(config.consumer_key, config.consumer_secret)
     authorization_url = auth.get_authorization_url()
@@ -75,18 +78,37 @@ def authorize():
     print("Authorization successful.")
 
 @main.command()
-@click.option('--date', required=False)
-def tweet(date):
+@click.option('--date', required=False, help="Pretend it's another day")
+@click.option('--dry', is_flag=True, default=False, required=False, help="Do not tweet, print instead")
+def tweet(date, dry):
+    """
+        Make the relevant tweets for today.
+        
+        This command will announce the Pyvo events that are happening.
+        Intended to be run from a cronjob once a day, e.g. at midday.
+    """
+    tweets = []
+    
     if date:
         date = datetime.strptime(date, '%Y-%m-%d')
     else:
         date = datetime.today()
     update_data()
+    
     events = get_events(date)
     for event in events:
-        print("Event {} {}".format(event.date, event.city.name))
-    #api = get_api()    
-    #api.update_status("test")
+        text = random.choice(PHRASES).format(event=event)
+        if event.links:
+            text += "\n{}".format(event.links[0].url)
+        tweets.append(text)
+    
+    if not dry:
+        api = get_api()
+        for tweet in tweets:
+            api.update_status(tweet)
+    else:
+        for tweet in tweets:
+            print(tweet)
 
 if __name__ == '__main__':
     main()
