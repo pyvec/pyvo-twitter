@@ -9,7 +9,7 @@ import tweepy
 import click
 import git
 from git import Repo
-from pyvodb.load import get_db, load_from_directory
+from pyvodb.load import get_db as pyvodb_get_db, load_from_directory
 from pyvodb.tables import Event, City, Venue
 
 import config
@@ -40,18 +40,21 @@ def get_api():
         
     return api
 
-def update_data():
-    """ Update or initialize the pyvo-data database. """
+def get_db():
+    """ 
+        Update and return the Pyvo events database, initializing
+        it if it's not present.
+    """
     if os.path.exists(config.data_dir):
         repo = Repo(config.data_dir)
         repo.remotes.origin.pull()
     else:
         repo = Repo.clone_from(config.data_repo_url, config.data_dir)
+    return pyvodb_get_db(config.data_dir)
 
 def get_events(date):
     """ Get the Pyvo events on a single day """
-    update_data()
-    db = get_db(config.data_dir)
+    db = get_db()
     query = db.query(Event).filter(Event.year == date.year, Event.month == date.month, Event.day == date.day)
     return query.all()
     
@@ -94,7 +97,7 @@ def announce_next(dry, is_test):
     """
         Make a test tweet with the upcoming event.
     """
-    db = get_db(config.data_dir)
+    db = get_db()
     event = db.query(Event).filter(Event.date >= datetime.today()).first()
 
     if is_test:
