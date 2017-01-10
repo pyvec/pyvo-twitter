@@ -19,6 +19,7 @@ access_token = None
 PHRASES = open("phrases.txt").read().strip().split('\n')
 
 def get_api():
+    """ Log in to Twitter and get the API object. """
     if os.path.isfile("access_token.json"):
         with open("access_token.json") as f:
             access_token = json.load(f)
@@ -40,6 +41,7 @@ def get_api():
     return api
 
 def update_data():
+    """ Update or initialize the pyvo-data database. """
     if os.path.exists(config.data_dir):
         repo = Repo(config.data_dir)
         repo.remotes.origin.pull()
@@ -47,6 +49,8 @@ def update_data():
         repo = Repo.clone_from(config.data_repo_url, config.data_dir)
 
 def get_events(date):
+    """ Get the Pyvo events on a single day """
+    update_data()
     db = get_db(config.data_dir)
     query = db.query(Event).filter(Event.year == date.year, Event.month == date.month, Event.day == date.day)
     return query.all()
@@ -54,6 +58,9 @@ def get_events(date):
 
 @click.group()
 def main():
+    """
+        Announce Pyvo meetups on Twitter, automatically!
+    """
     pass
 
 @main.command()
@@ -77,10 +84,37 @@ def authorize():
     get_api()
     print("Authorization successful.")
 
-@main.command()
+@main.command("tweet-next")
+@click.option('--dry', is_flag=True, default=False, required=False, help="Do not tweet, print instead")
+@click.option('--is-test', is_flag=True, default=False, required=False, help="Note that this tweet is a test")
+def announce_next(dry, is_test):
+    """
+        Make a test tweet with the upcoming event.
+    """
+    db = get_db(config.data_dir)
+    event = db.query(Event).filter(Event.date >= datetime.today()).first()
+
+    if is_test:
+        text = "Toto je testovací tweet zapomocí pyvo-twitter! 🐍🐍🐍\n"
+    else:
+        text = ""
+    if event:
+        text += "🐍🍺 Příští akce bude {event.name} dne {event.day}. {event.month}.!".format(event=event)
+        if event.links:
+            text += "\n{}".format(event.links[0].url)
+    else:
+        text += "🐍🍺 Příští akce ještě nebyla ohlášena! 😨"
+    if not dry:
+        api = get_api()
+        api.update_status(text)
+    else:
+        print(text)
+    
+
+@main.command("tweet-today")
 @click.option('--date', required=False, help="Pretend it's another day")
 @click.option('--dry', is_flag=True, default=False, required=False, help="Do not tweet, print instead")
-def tweet(date, dry):
+def announce_today(date, dry):
     """
         Make the relevant tweets for today.
         
@@ -93,7 +127,6 @@ def tweet(date, dry):
         date = datetime.strptime(date, '%Y-%m-%d')
     else:
         date = datetime.today()
-    update_data()
     
     events = get_events(date)
     for event in events:
