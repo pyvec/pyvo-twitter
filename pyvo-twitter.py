@@ -9,6 +9,7 @@ import tweepy
 import click
 import git
 from git import Repo
+from jinja2 import Template
 from pyvodb.load import get_db as pyvodb_get_db, load_from_directory
 from pyvodb.tables import Event, City, Venue
 
@@ -136,7 +137,7 @@ def announce_today(date, dry):
     
     events = get_events(date)
     for event in events:
-        text = random.choice(PHRASES).format(event=event)
+        text = Template(random.choice(PHRASES)).render(event=event)
         if event.links:
             text += "\n{}".format(event.links[0].url)
         tweets.append(text)
