@@ -68,6 +68,9 @@ def authorize():
     """
         Interactively authorize on Twitter.
     """
+    if not (config.consumer_key and config.consumer_secret):
+        print("A Twitter consumer key and consumer secret is necessary.")
+        sys.exit(1)
     auth = tweepy.OAuthHandler(config.consumer_key, config.consumer_secret)
     authorization_url = auth.get_authorization_url()
 
