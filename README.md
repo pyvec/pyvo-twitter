@@ -49,3 +49,6 @@ at midday) using cron.  This is an example cronjob line, replacing [PATH] with t
 ```
     0 12 * * *  cd [PATH]/ && [PATH]/env/bin/python [PATH]/pyvo-twitter.py tweet-today
 ```
+
+## License
+`pyvo-twitter` is under the MIT license.
