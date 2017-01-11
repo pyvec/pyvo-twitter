@@ -1,1 +1,1 @@
-🐍🍺 Dnes se koná {event.name} na téma {event.topic}.  Přijďte!
+🐍🍺 Dnes se koná {{event.name}}{% if event.topic %} na téma {{event.topic}}{% endif %}. Přijďte!
