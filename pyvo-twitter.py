@@ -58,7 +58,14 @@ def get_events(date):
     db = get_db()
     query = db.query(Event).filter(Event.year == date.year, Event.month == date.month, Event.day == date.day)
     return query.all()
-    
+
+def event_url(event):
+    """
+        Returns the URL for a Pyvo event.
+        
+        TODO: this should be provided by pyvo-db.
+    """
+    return "https://pyvo.cz/{event.series.slug}/{event.year:04}-{event.month:02}/".format(event=event)
 
 @click.group()
 def main():
@@ -107,8 +114,9 @@ def announce_next(dry, is_test):
         text = ""
     if event:
         text += "🐍🍺 Příští akce bude {event.name} dne {event.day}. {event.month}.!".format(event=event)
-        if event.links:
-            text += "\n{}".format(event.links[0].url)
+        text += "\n" + event_url(event)
+        #if event.links:
+        #    text += "\n{}".format(event.links[0].url)
     else:
         text += "🐍🍺 Příští akce ještě nebyla ohlášena! 😨"
     if not dry:
@@ -138,8 +146,9 @@ def announce_today(date, dry):
     events = get_events(date)
     for event in events:
         text = Template(random.choice(PHRASES)).render(event=event)
-        if event.links:
-            text += "\n{}".format(event.links[0].url)
+        text += "\n{}".format(event_url(event))
+        #if event.links:
+        #    text += "\n{}".format(event.links[0].url)
         tweets.append(text)
     
     if not dry:
