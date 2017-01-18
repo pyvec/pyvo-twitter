@@ -66,7 +66,7 @@ The cron has to be set up according to [rosti.cz docs on cron](https://docs.rost
 The cron command is set up to change the locale as well, and also pull the repository.
 
 ```
-    0 12 * * * export LC_ALL=C.UTF-8 && export LANG=C.UTF-8 && cd /srv/pyvo-twitter/ && git pull origin master --quiet && /srv/pyvo-twitter/env/bin/python /srv/pyvo-twitter/pyvo-twitter.py tweet-today
+    30 15 * * * export LC_ALL=C.UTF-8; export LANG=C.UTF-8; cd /srv/pyvo-twitter/ && ( git pull origin master --quiet; /srv/pyvo-twitter/env/bin/python /srv/pyvo-twitter/pyvo-twitter.py tweet-today )
 ```
 
 If necessary, @Sanqui and @encukou have access.
