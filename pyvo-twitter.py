@@ -17,12 +17,12 @@ import config
 
 access_token = None
 
-PHRASES = open("phrases.txt").read().strip().split('\n')
+PHRASES = open("phrases.txt", encoding="utf-8").read().strip().split('\n')
 
 def get_api():
     """ Log in to Twitter and get the API object. """
     if os.path.isfile("access_token.json"):
-        with open("access_token.json") as f:
+        with open("access_token.json", encoding="utf-8") as f:
             access_token = json.load(f)
         
         auth = tweepy.OAuthHandler(config.consumer_key, config.consumer_secret)
@@ -85,7 +85,7 @@ def authorize():
     auth.get_access_token(pin)
 
     access_token = {"key": auth.access_token, "secret": auth.access_token_secret}
-    with open("access_token.json", "w") as f:
+    with open("access_token.json", "w", encoding="utf-8") as f:
         json.dump(access_token, f)
 
     get_api()
