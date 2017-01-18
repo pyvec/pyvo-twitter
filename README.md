@@ -7,7 +7,7 @@
 Setting up pyvo-twitter has been made as painless as possible.  First, clone the repo and set up the virtualenv.
 
 ```
-    git clone https://github.com/Sanqui/pyvo-twitter
+    git clone https://github.com/pyvec/pyvo-twitter.git
     cd pyvo-twitter
     virtualenv --python=python3 env
     source env/bin/activate
@@ -49,6 +49,27 @@ at midday) using cron.  This is an example cronjob line, replacing [PATH] with t
 ```
     0 12 * * *  cd [PATH]/ && [PATH]/env/bin/python [PATH]/pyvo-twitter.py tweet-today
 ```
+
+## Current deployment on rosti.cz
+
+`pyvo-twitter` runs on the Roští.cz server alongside `pyvo.cz`.  It's set up in `/srv/pyvo-twitter`, cloned from `https://github.com/pyvec/pyvo-twitter.git`.
+
+The current setup has a POSIX locale.  This breaks things (see PEP 538).  The virtualenv in `/srv/pyvo-twitter/env/` is set up to switch to utf-8 in `/src/pyvo-twitter/env/bin/activate`:
+
+```
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+```
+
+The cron has to be set up according to [rosti.cz docs on cron](https://docs.rosti.cz/tools/cron/) (which isn't too complicated).
+
+The cron command is set up to change the locale as well, and also pull the repository.
+
+```
+    0 12 * * * export LC_ALL=C.UTF-8 && export LANG=C.UTF-8 && cd /srv/pyvo-twitter/ && git pull origin master --quiet && /srv/pyvo-twitter/env/bin/python /srv/pyvo-twitter/pyvo-twitter.py tweet-today
+```
+
+If necessary, @Sanqui and @encukou have access.
 
 ## License
 `pyvo-twitter` is under the MIT license.
