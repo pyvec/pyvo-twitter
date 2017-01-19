@@ -1,2 +1,3 @@
 🐍🍺 Dnes se koná {{event.name}}{% if event.topic %} na téma {{event.topic}}{% endif %}. Přijďte!
 Už dnes je {{event.name}}{% if event.topic %} na téma {{event.topic}}{% endif %}. Nezapomeňte přijít! 🐍🍺 #Python #{{event.city.name}}
+Určitě víte, že je dneska {{event.name}}. Ale kdybyste to třeba nevěděli, tak teď už to víte. 🍺🐍🍺
