@@ -62,10 +62,8 @@ def get_events(date):
 def event_url(event):
     """
         Returns the URL for a Pyvo event.
-        
-        TODO: this should be provided by pyvo-db.
     """
-    return "https://pyvo.cz/{event.series.slug}/{event.year:04}-{event.month:02}/".format(event=event)
+    return "https://pyvo.cz/{event.series.slug}/{event.slug}/".format(event=event)
 
 @click.group()
 def main():
